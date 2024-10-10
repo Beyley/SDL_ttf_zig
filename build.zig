@@ -131,7 +131,7 @@ fn linkSdl(
     if (sdl_inc_dir) |sdl_inc_dir_path|
         step.addIncludePath(.{ .cwd_relative = sdl_inc_dir_path });
     if (sdl_lib_dir) |sdl_lib_dir_path|
-        step.addIncludePath(.{ .cwd_relative = sdl_lib_dir_path });
+        step.addLibraryPath(.{ .cwd_relative = sdl_lib_dir_path });
 
     step.linkSystemLibrary2("SDL3", .{
         .preferred_link_mode = if (shared) .dynamic else .static,
