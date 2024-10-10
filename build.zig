@@ -6,17 +6,17 @@ pub fn build(b: *std.Build) !void {
 
     const upstream = b.dependency("upstream", .{});
 
-    const sdl_lib_dir = b.option([]const u8, "sdl-lib-dir", "The directory which contains the SDL3 lib to link against");
-    const sdl_inc_dir = b.option([]const u8, "sdl-include-dir", "The directory which contains the SDL3 headers to compile against");
+    const sdl_lib_dir = b.option([]const u8, "sdl_lib_dir", "The directory which contains the SDL3 lib to link against");
+    const sdl_inc_dir = b.option([]const u8, "sdl_include_dir", "The directory which contains the SDL3 headers to compile against");
 
     const pic = b.option(bool, "pic", "Whether to force enable/disable Position Independent Code");
-    const shared = b.option(bool, "build-shared", "Whether to build SDL_ttf as a shared library") orelse false;
+    const shared = b.option(bool, "build_shared", "Whether to build SDL_ttf as a shared library") orelse false;
 
-    const harfbuzz = b.option(bool, "use-harfbuzz", "Whether to use Harfbuzz inside of SDL_ttf") orelse true;
+    const harfbuzz = b.option(bool, "use_harfbuzz", "Whether to use Harfbuzz inside of SDL_ttf") orelse true;
 
-    const samples = b.option(bool, "build-samples", "Whether to build the SDL_ttf sample applications") orelse true;
+    const samples = b.option(bool, "build_samples", "Whether to build the SDL_ttf sample applications") orelse true;
 
-    const disable_pkg_config = b.option(bool, "disable-pkg-config", "Whether to disable pkg-config support when linking libraries") orelse false;
+    const disable_pkg_config = b.option(bool, "disable_pkg_config", "Whether to disable pkg-config support when linking libraries") orelse false;
 
     const options = .{
         .name = "SDL_ttf",
