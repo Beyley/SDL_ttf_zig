@@ -9,12 +9,14 @@ pub fn build(b: *std.Build) !void {
     const sdl_lib_dir = b.option([]const u8, "sdl-lib-dir", "The directory which contains the SDL3 lib to link against");
     const sdl_inc_dir = b.option([]const u8, "sdl-include-dir", "The directory which contains the SDL3 headers to compile against");
 
-    const pic = b.option(bool, "sdl-ttf-pic", "Whether to force enable/disable Position Independent Code");
-    const shared = b.option(bool, "sdl-ttf-shared", "Whether to build SDL_ttf as a shared library") orelse false;
+    const pic = b.option(bool, "pic", "Whether to force enable/disable Position Independent Code");
+    const shared = b.option(bool, "build-shared", "Whether to build SDL_ttf as a shared library") orelse false;
 
-    const harfbuzz = b.option(bool, "sdl-ttf-harfbuzz", "Whether to use Harfbuzz inside of SDL_ttf") orelse true;
+    const harfbuzz = b.option(bool, "use-harfbuzz", "Whether to use Harfbuzz inside of SDL_ttf") orelse true;
 
-    const samples = b.option(bool, "sdl-ttf-samples", "Whether to build the SDL_ttf sample applications") orelse true;
+    const samples = b.option(bool, "build-samples", "Whether to build the SDL_ttf sample applications") orelse true;
+
+    const disable_pkg_config = b.option(bool, "disable-pkg-config", "Whether to disable pkg-config support when linking libraries") orelse false;
 
     const options = .{
         .name = "SDL_ttf",
@@ -44,14 +46,7 @@ pub fn build(b: *std.Build) !void {
     sdl_ttf.installHeadersDirectory(upstream.path("include/"), "", .{});
     sdl_ttf.addIncludePath(upstream.path("include/"));
 
-    if (sdl_inc_dir) |sdl_inc_dir_path|
-        sdl_ttf.addIncludePath(.{ .cwd_relative = sdl_inc_dir_path });
-    if (sdl_lib_dir) |sdl_lib_dir_path|
-        sdl_ttf.addIncludePath(.{ .cwd_relative = sdl_lib_dir_path });
-
-    sdl_ttf.linkSystemLibrary2("SDL3", .{
-        .preferred_link_mode = if (shared) .dynamic else .static,
-    });
+    linkSdl(sdl_ttf, sdl_inc_dir, sdl_lib_dir, shared, disable_pkg_config);
 
     if (shared and target.result.os.tag == .windows) {
         sdl_ttf.addWin32ResourceFile(.{ .file = upstream.path("src/version.rc") });
@@ -87,9 +82,10 @@ pub fn build(b: *std.Build) !void {
         });
 
         glfont.root_module.addCMacro("HAVE_OPENGL", "1");
-        glfont.linkSystemLibrary("OpenGL");
+        glfont.linkSystemLibrary2("OpenGL", .{ .use_pkg_config = if (disable_pkg_config) .no else .yes });
         glfont.linkLibrary(sdl_ttf);
         glfont.addCSourceFile(.{ .file = upstream.path("examples/glfont.c") });
+        linkSdl(glfont, sdl_inc_dir, sdl_lib_dir, shared, disable_pkg_config);
 
         b.installArtifact(glfont);
 
@@ -107,6 +103,7 @@ pub fn build(b: *std.Build) !void {
             },
             .root = upstream.path("examples/"),
         });
+        linkSdl(showfont, sdl_inc_dir, sdl_lib_dir, shared, disable_pkg_config);
 
         b.installArtifact(showfont);
 
@@ -118,7 +115,26 @@ pub fn build(b: *std.Build) !void {
 
         testapp.linkLibrary(sdl_ttf);
         testapp.addCSourceFile(.{ .file = upstream.path("examples/testapp.c") });
+        linkSdl(testapp, sdl_inc_dir, sdl_lib_dir, shared, disable_pkg_config);
 
         b.installArtifact(testapp);
     }
+}
+
+fn linkSdl(
+    step: *std.Build.Step.Compile,
+    sdl_inc_dir: ?[]const u8,
+    sdl_lib_dir: ?[]const u8,
+    shared: bool,
+    disable_pkg_config: bool,
+) void {
+    if (sdl_inc_dir) |sdl_inc_dir_path|
+        step.addIncludePath(.{ .cwd_relative = sdl_inc_dir_path });
+    if (sdl_lib_dir) |sdl_lib_dir_path|
+        step.addIncludePath(.{ .cwd_relative = sdl_lib_dir_path });
+
+    step.linkSystemLibrary2("SDL3", .{
+        .preferred_link_mode = if (shared) .dynamic else .static,
+        .use_pkg_config = if (disable_pkg_config) .no else .yes,
+    });
 }
