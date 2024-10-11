@@ -69,8 +69,10 @@ pub fn build(b: *std.Build) !void {
         sdl_ttf.root_module.addCMacro("hb", "harfbuzz/hb");
     }
 
-    const freetype_lib = b.dependency("freetype", .{ .target = target, .optimize = optimize }).artifact("freetype");
-    sdl_ttf.linkLibrary(freetype_lib);
+    if (b.lazyDependency("freetype", .{ .target = target, .optimize = optimize })) |freetype_dep| {
+        const freetype_lib = freetype_dep.artifact("freetype");
+        sdl_ttf.linkLibrary(freetype_lib);
+    }
 
     b.installArtifact(sdl_ttf);
 
