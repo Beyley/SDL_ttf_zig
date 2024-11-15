@@ -18,13 +18,15 @@ pub fn build(b: *std.Build) !void {
 
     const disable_pkg_config = b.option(bool, "disable_pkg_config", "Whether to disable pkg-config support when linking libraries") orelse false;
 
-    const options = .{
+    const sdl_ttf = if (shared) b.addSharedLibrary(.{
         .name = "SDL_ttf",
         .optimize = optimize,
         .target = target,
-    };
-
-    const sdl_ttf = if (shared) b.addSharedLibrary(options) else b.addStaticLibrary(options);
+    }) else b.addStaticLibrary(.{
+        .name = "SDL_ttf",
+        .optimize = optimize,
+        .target = target,
+    });
     sdl_ttf.root_module.sanitize_c = false;
 
     // TODO: this is probably not the correct way of going about this...
@@ -135,8 +137,9 @@ fn linkSdl(
     if (sdl_lib_dir) |sdl_lib_dir_path|
         step.addLibraryPath(.{ .cwd_relative = sdl_lib_dir_path });
 
-    step.linkSystemLibrary2("SDL3", .{
-        .preferred_link_mode = if (shared) .dynamic else .static,
-        .use_pkg_config = if (disable_pkg_config) .no else .yes,
-    });
+    if (shared)
+        step.linkSystemLibrary2("SDL3", .{
+            .preferred_link_mode = .dynamic,
+            .use_pkg_config = if (disable_pkg_config) .no else .yes,
+        });
 }
