@@ -39,6 +39,7 @@ pub fn build(b: *std.Build) !void {
     sdl_ttf.addCSourceFiles(.{
         .files = &.{
             "SDL_hashtable.c",
+            "SDL_gpu_textengine.c",
             "SDL_renderer_textengine.c",
             "SDL_surface_textengine.c",
             "SDL_ttf.c",
@@ -89,7 +90,7 @@ pub fn build(b: *std.Build) !void {
         glfont.linkSystemLibrary2("OpenGL", .{ .use_pkg_config = if (disable_pkg_config) .no else .yes });
         glfont.linkLibrary(sdl_ttf);
         glfont.addCSourceFile(.{ .file = upstream.path("examples/glfont.c") });
-        linkSdl(glfont, sdl_inc_dir, sdl_lib_dir, shared, disable_pkg_config);
+        linkSdl(glfont, sdl_inc_dir, sdl_lib_dir, true, disable_pkg_config);
 
         b.installArtifact(glfont);
 
@@ -107,7 +108,7 @@ pub fn build(b: *std.Build) !void {
             },
             .root = upstream.path("examples/"),
         });
-        linkSdl(showfont, sdl_inc_dir, sdl_lib_dir, shared, disable_pkg_config);
+        linkSdl(showfont, sdl_inc_dir, sdl_lib_dir, true, disable_pkg_config);
 
         b.installArtifact(showfont);
 
@@ -119,9 +120,23 @@ pub fn build(b: *std.Build) !void {
 
         testapp.linkLibrary(sdl_ttf);
         testapp.addCSourceFile(.{ .file = upstream.path("examples/testapp.c") });
-        linkSdl(testapp, sdl_inc_dir, sdl_lib_dir, shared, disable_pkg_config);
+        linkSdl(testapp, sdl_inc_dir, sdl_lib_dir, true, disable_pkg_config);
 
         b.installArtifact(testapp);
+
+        const testgputext = b.addExecutable(.{
+            .name = "testgputext",
+            .optimize = optimize,
+            .target = target,
+        });
+
+        testgputext.linkLibrary(sdl_ttf);
+        testgputext.addCSourceFile(.{ .file = upstream.path("examples/testgputext.c") });
+        linkSdl(testgputext, sdl_inc_dir, sdl_lib_dir, true, disable_pkg_config);
+
+        b.installArtifact(testgputext);
+        const testgpu_font = b.addInstallBinFile(upstream.path("examples/testgputext/fonts/NotoSansMono-Regular.ttf"), "NotoSansMono-Regular.ttf");
+        b.getInstallStep().dependOn(&testgpu_font.step);
     }
 }
 
