@@ -8,13 +8,13 @@
     },
     .dependencies = .{
         .freetype = .{
-            .url = "git+https://github.com/hexops/freetype#060ee56c3d10c01fb8a1da4fe8cb2102f2537f30",
-            .hash = "1220e1384f26c5b9a3749b49eced1cb8264e871b367dcda2624d37a05367e96c4319",
+            .url = "git+https://github.com/Beyley/freetype#70b22352307d6341d24d9dc2f87d1779745fe4b7",
+            .hash = "1220601d3b8dcccb88663e754a7a3a6b26e87c44785e02da8221dbd9d870794ca23b",
             .lazy = true,
         },
         .harfbuzz = .{
-            .url = "git+https://github.com/hexops/harfbuzz#b335727bc98f2561071b73b74a9517d03a501b9b",
-            .hash = "1220d8885935207caa5a2de2ed14c53611c632e0f9696e9db8844c06e69f0b921cd9",
+            .url = "git+https://github.com/Beyley/harfbuzz#6596409b25c41cf5db73e5c5da0c5e0aed49f3c7",
+            .hash = "12208fb126f91a715b8de7a5e9c2f90f0d59f44cc924f603171113d8a97af4ab5401",
             .lazy = true,
         },
         .upstream = .{
