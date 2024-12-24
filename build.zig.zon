@@ -18,8 +18,8 @@
             .lazy = true,
         },
         .upstream = .{
-            .url = "git+https://github.com/libsdl-org/SDL_ttf#0ad0c2518be948300ed1e133741932f1ba2a4e7b",
-            .hash = "122091a6b86a04bff2c54ad51723a324eb2aded6b3c1b92541260e281fd385e34cfc",
+            .url = "git+https://github.com/libsdl-org/SDL_ttf#3287581444938081e292bef67f9795bc34a06f5e",
+            .hash = "1220eea2ccf8a2538c981a71e1f7b2a04faafd156b44900da77c01d102279e0854ef",
         },
     },
 }
